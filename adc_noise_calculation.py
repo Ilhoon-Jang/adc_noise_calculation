@@ -35,8 +35,8 @@ st.set_page_config(page_title="ADC Noise Budgeting", page_icon="🔧")
 st.title("🔧 ADC Noise Budgeting Tool")
 
 # 👉 측정값 입력은 사이드바로 이동
- st.sidebar.header("📐 Measured Parameters")
- sndr_str = st.sidebar.text_input("Measured SNDR (dB)", "")
+st.sidebar.header("📐 Measured Parameters")
+sndr_str = st.sidebar.text_input("Measured SNDR (dB)", "")
 
 # 입력 값 받기
 fs_str = st.text_input("Full Scale Voltage (V)", "1")
@@ -45,7 +45,7 @@ thermal_rms_str = st.text_input("Thermal Noise RMS (V)", "1m")
 c_sample_str = st.text_input("Sampling Cap (F, optional)", "1p")
 freq_str = st.text_input("Input Frequency (Hz)", "100M")
 jitter_str = st.text_input("Clock Jitter RMS (s)", "1p")
-sndr_str = st.text_input("Measured SNDR (dB, optional)", "")  # 🔹 SNDR 입력
+#sndr_str = st.text_input("Measured SNDR (dB, optional)", "")  # 🔹 SNDR 입력
 use_c = st.checkbox("Include kT/C Noise?", value=True)
 use_jitter = st.checkbox("Include Jitter Noise?", value=True)
 
