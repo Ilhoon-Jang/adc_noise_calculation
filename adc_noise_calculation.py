@@ -35,9 +35,9 @@ st.set_page_config(page_title="ADC Noise Budgeting", page_icon="🔧")
 st.title("🔧 ADC Noise Budgeting Tool")
 
 # 👉 측정값 입력은 사이드바로 이동
-st.sidebar.header("📐 Measured Parameters")
+st.sidebar.header("📐 Noise RMS calculation")
 sndr_str = st.sidebar.text_input("Measured SNDR (dB)", "")
-estimate_btn = st.sidebar.button("📐 Estimate from Measured SNDR")
+estimate_btn = st.sidebar.button("📐 Calculate from Measured SNDR")
 
 # 입력 값 받기
 fs_str = st.text_input("Full Scale Voltage (V)", "1")
