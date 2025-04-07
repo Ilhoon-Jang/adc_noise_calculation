@@ -91,7 +91,18 @@ if st.button("🔍 Calculate SNR and ENOB"):
         - **SNR**: `{snr:.2f} dB`  
         - **ENOB**: `{enob:.2f} bits`
         """)
+        import matplotlib.pyplot as plt
 
+        # 시각화 추가
+        labels = ['Quantization', 'Thermal', 'kT/C', 'Jitter']
+        powers = [p_q, p_thermal, p_kTC, p_jitter]
+
+        labels_filtered = [label for label, p in zip(labels, powers) if p > 0]
+        powers_filtered = [p for p in powers if p > 0]
+
+        fig, ax = plt.subplots()
+        ax.pie(powers_filtered, labels=labels_filtered, autopct='%1.1f%%', startangle=90)
+        ax.axis('equal')
         # 🔍 디버깅용 출력 (선택)
         # st.write(f"Parsed jitter (s): {t_jitter:.2e}")
         # st.write(f"Parsed f_in (Hz): {f_in:.2e}")
