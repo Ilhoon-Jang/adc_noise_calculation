@@ -37,6 +37,7 @@ st.title("🔧 ADC Noise Budgeting Tool")
 # 👉 측정값 입력은 사이드바로 이동
 st.sidebar.header("📐 Measured Parameters")
 sndr_str = st.sidebar.text_input("Measured SNDR (dB)", "")
+estimate_btn = st.sidebar.button("📐 Estimate from Measured SNDR")
 
 # 입력 값 받기
 fs_str = st.text_input("Full Scale Voltage (V)", "1")
@@ -137,3 +138,21 @@ if st.button("🔍 Calculate SNR and ENOB"):
 
     except Exception as e:
         st.error(f"❌ Error: {e}")
+
+# 🧮 SNDR 기반 추정 계산 (별도 버튼)
+if estimate_btn:
+    try:
+        sndr = float(sndr_str)
+        fs = parse_si_string(fs_str)
+        v_signal_rms = fs / (2 * math.sqrt(2))
+        v_noise_rms = v_signal_rms / (10 ** (sndr / 20))
+        enob_sndr = (sndr - 1.76) / 6.02
+
+        st.markdown(f"""
+        ### 🔍 SNDR-based Noise Estimation
+        - **Signal RMS**: `{v_signal_rms*1e3:.3f} mV`  
+        - **Estimated Noise RMS**: `{v_noise_rms*1e6:.2f} µV`  
+        - **ENOB (from SNDR)**: `{enob_sndr:.2f} bits`
+        """)
+    except:
+        st.warning("⚠️ Invalid SNDR input. Please enter a valid number.")
