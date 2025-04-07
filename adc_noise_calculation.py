@@ -100,24 +100,20 @@ if st.button("🔍 Calculate SNR and ENOB"):
         labels_filtered = [label for label, p in zip(labels, powers) if p > 0]
         powers_filtered = [p for p in powers if p > 0]
 
-        # 📊 라벨 + 퍼센트 함께 표시 (내부 텍스트로)
-        def format_autopct(pct):
-        index = int(round(pct / 100. * len(powers_filtered)))
-        if index >= len(labels_filtered):  # 안전하게 처리
-        index = len(labels_filtered) - 1
-        return f"{labels_filtered[index]}\n{pct:.1f}%"
+        
+    fig, ax = plt.subplots()
+    wedges, texts, autotexts = ax.pie(
+    powers_filtered,
+    autopct='%1.1f%%',
+    startangle=90,
+    textprops={'fontsize': 10, 'weight': 'bold'}
+    )
 
-        fig, ax = plt.subplots()
-        ax.pie(
-        powers_filtered,
-        labels=None,
-        autopct=format_autopct,
-        startangle=90,
-        textprops={'fontsize': 10, 'weight': 'bold'}
-        )
-        ax.axis('equal')  # 원형 유지
+    # ✅ 범례 추가
+    ax.legend(wedges, labels_filtered, title="Noise Source", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+    ax.axis('equal')
 
-        st.pyplot(fig)
+    st.pyplot(fig)
     
         # 🔍 디버깅용 출력 (선택)
         # st.write(f"Parsed jitter (s): {t_jitter:.2e}")
