@@ -1,29 +1,30 @@
 import streamlit as st  # type: ignore
 import math
 
-# 📌 SI 단위 문자열 파싱 함수
+# 📌 SI 단위 문자열 파싱 함수 (대소문자 모두 지원)
 def parse_si_string(s):
-    s = s.strip().lower().replace("µ", "u")  # µ -> u
+    s = s.strip().replace("µ", "u")
     si_prefixes = {
-        'f': 1e-15,
-        'p': 1e-12,
-        'n': 1e-9,
-        'u': 1e-6,
-        'm': 1e-3,
-        '': 1,
-        'k': 1e3,
+        'meg': 1e6,
+        'G': 1e9,
         'M': 1e6,
-        'G': 1e9
+        'k': 1e3,
+        '': 1,
+        'm': 1e-3,
+        'u': 1e-6,
+        'n': 1e-9,
+        'p': 1e-12,
+        'f': 1e-15,
     }
 
     try:
         return float(s)
     except ValueError:
-        for prefix, multiplier in si_prefixes.items():
-            if s.endswith(prefix) and prefix != '':
+        for prefix in sorted(si_prefixes, key=len, reverse=True):  # 접미사 길이순
+            if s.endswith(prefix):
                 try:
                     value = float(s[:-len(prefix)])
-                    return value * multiplier
+                    return value * si_prefixes[prefix]
                 except:
                     continue
         raise ValueError(f"Could not parse value: '{s}'")
@@ -49,8 +50,7 @@ if st.button("🔍 Calculate SNR and ENOB"):
         c_sample = parse_si_string(c_sample_str) if use_c else None
         f_in = parse_si_string(freq_str)
         t_jitter = parse_si_string(jitter_str)
-        kT = 1.38e-23 * 300 
-        #kT = 4.14e-21  # at 300K
+        kT = 1.38e-23 * 300  # = 4.14e-21 (at 300K)
 
         # Quantization noise
         delta = fs / (2 ** bits)
@@ -60,18 +60,17 @@ if st.button("🔍 Calculate SNR and ENOB"):
         # Thermal noise
         p_thermal = thermal_rms ** 2
 
-        # kT/C noise
+        # kT/C noise (Differential 기준 → 2x)
         p_kTC = 2 * kT / c_sample if use_c and c_sample else 0
 
-        # Jitter noise
-        v_peak = fs / 2  # full-scale sinewave peak
-        v_jitter_rms = 2 * math.pi * f_in * v_peak * t_jitter
-        p_jitter = v_jitter_rms ** 2
+        # Jitter noise (정확한 공식)
+        v_peak = fs / 2
+        p_jitter = ((2 * math.pi * f_in * v_peak) ** 2) * (t_jitter ** 2) / 2
 
         # Total noise
         p_total_noise = p_q + p_thermal + p_kTC + p_jitter
 
-        # Signal power (full-scale sine wave)
+        # Signal power (full-scale sinewave)
         v_signal_rms = fs / (2 * math.sqrt(2))
         p_signal = v_signal_rms ** 2
 
@@ -92,5 +91,11 @@ if st.button("🔍 Calculate SNR and ENOB"):
         - **SNR**: `{snr:.2f} dB`  
         - **ENOB**: `{enob:.2f} bits`
         """)
+
+        # 🔍 디버깅용 출력 (선택)
+        # st.write(f"Parsed jitter (s): {t_jitter:.2e}")
+        # st.write(f"Parsed f_in (Hz): {f_in:.2e}")
+        # st.write(f"Jitter Noise Power: {p_jitter:.2e} V²")
+
     except Exception as e:
         st.error(f"❌ Error: {e}")
