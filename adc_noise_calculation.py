@@ -35,8 +35,8 @@ st.set_page_config(page_title="ADC Noise Budgeting", page_icon="🔧")
 st.title("🔧 ADC Noise Budgeting Tool")
 
 # 👉 측정값 입력은 사이드바로 이동
-st.sidebar.header("📐 Measured Parameters")
-sndr_str = st.sidebar.text_input("Measured SNDR (dB)", "")
+# st.sidebar.header("📐 Measured Parameters")
+# sndr_str = st.sidebar.text_input("Measured SNDR (dB)", "")
 
 # 입력 값 받기
 fs_str = st.text_input("Full Scale Voltage (V)", "1")
@@ -47,6 +47,7 @@ freq_str = st.text_input("Input Frequency (Hz)", "100M")
 jitter_str = st.text_input("Clock Jitter RMS (s)", "1p")
 sndr_str = st.text_input("Measured SNDR (dB, optional)", "")  # 🔹 SNDR 입력
 use_c = st.checkbox("Include kT/C Noise?", value=True)
+use_jitter = st.checkbox("Include Jitter Noise?", value=True)
 
 # 계산
 if st.button("🔍 Calculate SNR and ENOB"):
@@ -71,8 +72,8 @@ if st.button("🔍 Calculate SNR and ENOB"):
 
         # Jitter noise
         v_peak = fs / 2
-        p_jitter = ((2 * math.pi * f_in * v_peak) ** 2) * (t_jitter ** 2) / 2
-
+        #p_jitter = ((2 * math.pi * f_in * v_peak) ** 2) * (t_jitter ** 2) / 2
+        p_jitter = ((2 * math.pi * f_in * v_peak) ** 2) * (t_jitter ** 2) / 2 if use_jitter else 0
         # Total noise
         p_total_noise = p_q + p_thermal + p_kTC + p_jitter
 
