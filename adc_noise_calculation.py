@@ -103,6 +103,8 @@ if st.button("🔍 Calculate SNR and ENOB"):
         fig, ax = plt.subplots()
         ax.pie(powers_filtered, labels=labels_filtered, autopct='%1.1f%%', startangle=90)
         ax.axis('equal')
+
+        st.pyplot(fig)
         # 🔍 디버깅용 출력 (선택)
         # st.write(f"Parsed jitter (s): {t_jitter:.2e}")
         # st.write(f"Parsed f_in (Hz): {f_in:.2e}")
