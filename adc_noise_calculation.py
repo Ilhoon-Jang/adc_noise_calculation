@@ -49,7 +49,8 @@ if st.button("🔍 Calculate SNR and ENOB"):
         c_sample = parse_si_string(c_sample_str) if use_c else None
         f_in = parse_si_string(freq_str)
         t_jitter = parse_si_string(jitter_str)
-        kT = 4.14e-21  # at 300K
+        kT = 1.38e-23 * 300 
+        #kT = 4.14e-21  # at 300K
 
         # Quantization noise
         delta = fs / (2 ** bits)
