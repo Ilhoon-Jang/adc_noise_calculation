@@ -1,5 +1,6 @@
 import streamlit as st  # type: ignore
 import math
+import matplotlib.pyplot as plt
 
 # 📌 SI 단위 문자열 파싱 함수 (대소문자 모두 지원)
 def parse_si_string(s):
@@ -91,39 +92,26 @@ if st.button("🔍 Calculate SNR and ENOB"):
         - **SNR**: `{snr:.2f} dB`  
         - **ENOB**: `{enob:.2f} bits`
         """)
-        import matplotlib.pyplot as plt
 
-        # 시각화 추가
+        # 시각화 준비
         labels = ['Quantization', 'Thermal', 'kT/C', 'Jitter']
         powers = [p_q, p_thermal, p_kTC, p_jitter]
 
         labels_filtered = [label for label, p in zip(labels, powers) if p > 0]
         powers_filtered = [p for p in powers if p > 0]
 
-        
-    # 📊 라벨 + 퍼센트 함께 표시 (내부 텍스트로)
-def format_autopct(pct):
-    index = int(round(pct / 100. * len(powers_filtered)))
-    if index >= len(labels_filtered):  # 안전하게 처리
-        index = len(labels_filtered) - 1
-    return f"{labels_filtered[index]}\n{pct:.1f}%"
+        # 📊 퍼센트만 내부 표시, 이름은 legend로
+        fig, ax = plt.subplots()
+        wedges, texts, autotexts = ax.pie(
+            powers_filtered,
+            autopct='%1.1f%%',
+            startangle=90,
+            textprops={'fontsize': 10, 'weight': 'bold'}
+        )
+        ax.axis('equal')
+        ax.legend(wedges, labels_filtered, title="Noise Source", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
 
-fig, ax = plt.subplots()
-ax.pie(
-    powers_filtered,
-    labels=None,
-    autopct=format_autopct,
-    startangle=90,
-    textprops={'fontsize': 10, 'weight': 'bold'}
-)
-ax.axis('equal')  # 원형 유지
-
-st.pyplot(fig)
-    
-        # 🔍 디버깅용 출력 (선택)
-        # st.write(f"Parsed jitter (s): {t_jitter:.2e}")
-        # st.write(f"Parsed f_in (Hz): {f_in:.2e}")
-        # st.write(f"Jitter Noise Power: {p_jitter:.2e} V²")
+        st.pyplot(fig)
 
     except Exception as e:
         st.error(f"❌ Error: {e}")
