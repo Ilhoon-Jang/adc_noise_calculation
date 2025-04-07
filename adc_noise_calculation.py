@@ -41,6 +41,7 @@ thermal_rms_str = st.text_input("Thermal Noise RMS (V)", "1m")
 c_sample_str = st.text_input("Sampling Cap (F, optional)", "1p")
 freq_str = st.text_input("Input Frequency (Hz)", "100M")
 jitter_str = st.text_input("Clock Jitter RMS (s)", "1p")
+sndr_str = st.text_input("Measured SNDR (dB, optional)", "")  # 🔹 SNDR 입력
 use_c = st.checkbox("Include kT/C Noise?", value=True)
 
 # 계산
@@ -64,7 +65,7 @@ if st.button("🔍 Calculate SNR and ENOB"):
         # kT/C noise (Differential 기준 → 2x)
         p_kTC = 2 * kT / c_sample if use_c and c_sample else 0
 
-        # Jitter noise (정확한 공식)
+        # Jitter noise
         v_peak = fs / 2
         p_jitter = ((2 * math.pi * f_in * v_peak) ** 2) * (t_jitter ** 2) / 2
 
@@ -92,6 +93,22 @@ if st.button("🔍 Calculate SNR and ENOB"):
         - **SNR**: `{snr:.2f} dB`  
         - **ENOB**: `{enob:.2f} bits`
         """)
+
+        # SNDR → Noise RMS 및 ENOB 계산 (선택 사항)
+        if sndr_str.strip() != "":
+            try:
+                sndr = float(sndr_str)
+                v_noise_rms = v_signal_rms / (10 ** (sndr / 20))
+                enob_sndr = (sndr - 1.76) / 6.02
+
+                st.markdown(f"""
+                ### 🔍 SNDR-based Noise Estimation
+                - **Signal RMS**: `{v_signal_rms*1e3:.3f} mV`
+                - **Estimated Noise RMS**: `{v_noise_rms*1e6:.2f} µV`
+                - **ENOB (from SNDR)**: `{enob_sndr:.2f} bits`
+                """)
+            except:
+                st.warning("⚠️ Invalid SNDR input. Please enter a valid number.")
 
         # 시각화 준비
         labels = ['Quantization', 'Thermal', 'kT/C', 'Jitter']
