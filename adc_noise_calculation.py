@@ -12,8 +12,8 @@ def parse_si_string(s):
         'm': 1e-3,
         '': 1,
         'k': 1e3,
-        'meg': 1e6,
-        'g': 1e9
+        'M': 1e6,
+        'G': 1e9
     }
 
     try:
