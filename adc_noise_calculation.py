@@ -31,8 +31,8 @@ def parse_si_string(s):
         raise ValueError(f"Could not parse value: '{s}'")
 
 # 🎛️ UI 구성
-st.set_page_config(page_title="ADC Noise Budgeting", page_icon="🔧")
-st.title("🔧 ADC Noise Budgeting Tool")
+st.set_page_config(page_title="SAR ADC Noise Budgeting", page_icon="🔧")
+st.title("🔧 SAR ADC Noise Budgeting Tool")
 
 # 👉 측정값 입력은 사이드바로 이동
 st.sidebar.header("📐 Noise RMS calculation")
@@ -42,7 +42,7 @@ estimate_btn = st.sidebar.button("📐 Calculate from Measured SNDR")
 # 입력 값 받기
 fs_str = st.text_input("Full Scale Voltage (V)", "1")
 bits = st.number_input("Resolution (bits)", value=8, step=1)
-thermal_rms_str = st.text_input("Thermal Noise RMS (V)", "1m")
+thermal_rms_str = st.text_input("Comparator Noise RMS (V)", "1m")
 c_sample_str = st.text_input("Sampling Cap (F, optional)", "1p")
 freq_str = st.text_input("Input Frequency (Hz)", "100M")
 jitter_str = st.text_input("Clock Jitter RMS (s)", "1p")
@@ -92,7 +92,7 @@ if st.button("🔍 Calculate SNR and ENOB"):
         ### 📊 Results
         - **Quantization Noise RMS**: `{v_q_rms * 1e3:.3f} mV`  
         - **Quantization Noise Power**: `{p_q * 1e6:.3f} µV²`  
-        - **Thermal Noise Power**: `{p_thermal * 1e6:.3f} µV²`  
+        - **Comparator Noise Power**: `{p_thermal * 1e6:.3f} µV²`  
         - **kT/C Noise Power**: `{p_kTC * 1e6:.3f} µV²`  
         - **Jitter Noise Power**: `{p_jitter * 1e6:.3f} µV²`  
         - **Total Noise Power**: `{p_total_noise * 1e6:.3f} µV²`  
@@ -117,7 +117,7 @@ if st.button("🔍 Calculate SNR and ENOB"):
                 st.warning("⚠️ Invalid SNDR input. Please enter a valid number.")
 
         # 시각화 준비
-        labels = ['Quantization', 'Thermal', 'kT/C', 'Jitter']
+        labels = ['Quantization', 'Comparator', 'kT/C', 'Jitter']
         powers = [p_q, p_thermal, p_kTC, p_jitter]
 
         labels_filtered = [label for label, p in zip(labels, powers) if p > 0]
