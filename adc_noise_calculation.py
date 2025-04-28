@@ -34,10 +34,10 @@ def parse_si_string(s):
 st.set_page_config(page_title="SAR ADC Noise Budgeting", page_icon="🔧")
 st.title("🔧 SAR ADC Noise Budgeting Tool")
 
-# 👉 측정값 입력은 사이드바로 이동
-st.sidebar.header("📐 Noise RMS calculation")
+# 👉 체인값 입력은 사이드바로 이동
+st.sidebar.header("📊 Noise RMS calculation")
 sndr_str = st.sidebar.text_input("Measured SNDR (dB)", "")
-estimate_btn = st.sidebar.button("📐 Calculate from Measured SNDR")
+estimate_btn = st.sidebar.button("📊 Calculate from Measured SNDR")
 
 # 입력 값 받기
 fs_str = st.text_input("Full Scale Voltage (V)", "1")
@@ -46,7 +46,6 @@ thermal_rms_str = st.text_input("Comparator Noise RMS (V)", "1m")
 c_sample_str = st.text_input("Sampling Cap (F, optional)", "1p")
 freq_str = st.text_input("Input Frequency (Hz)", "100M")
 jitter_str = st.text_input("Clock Jitter RMS (s)", "1p")
-#sndr_str = st.text_input("Measured SNDR (dB, optional)", "")  # 🔹 SNDR 입력
 use_c = st.checkbox("Include kT/C Noise?", value=True)
 use_jitter = st.checkbox("Include Jitter Noise?", value=True)
 
@@ -73,8 +72,8 @@ if st.button("🔍 Calculate SNR and ENOB"):
 
         # Jitter noise
         v_peak = fs / 2
-        #p_jitter = ((2 * math.pi * f_in * v_peak) ** 2) * (t_jitter ** 2) / 2
         p_jitter = ((2 * math.pi * f_in * v_peak) ** 2) * (t_jitter ** 2) / 2 if use_jitter else 0
+
         # Total noise
         p_total_noise = p_q + p_thermal + p_kTC + p_jitter
 
@@ -90,17 +89,27 @@ if st.button("🔍 Calculate SNR and ENOB"):
         st.success("✅ Calculation Completed!")
         st.markdown(f"""
         ### 📊 Results
-        - **Quantization Noise RMS**: `{v_q_rms * 1e3:.3f} mV`  
-        - **Quantization Noise Power**: `{p_q * 1e6:.3f} µV²`  
-        - **Comparator Noise Power**: `{p_thermal * 1e6:.3f} µV²`  
-        - **kT/C Noise Power**: `{p_kTC * 1e6:.3f} µV²`  
-        - **Jitter Noise Power**: `{p_jitter * 1e6:.3f} µV²`  
-        - **Total Noise Power**: `{p_total_noise * 1e6:.3f} µV²`  
-        - **SNR**: `{snr:.2f} dB`  
+        #### 📈 Noise Breakdown
+        - **Quantization Noise**  
+          - RMS: `{v_q_rms * 1e3:.3f} mV`  
+          - Power: `{p_q * 1e6:.3f} µV²`
+        - **Comparator Noise**  
+          - RMS: `{math.sqrt(p_thermal) * 1e6:.3f} µV`  
+          - Power: `{p_thermal * 1e6:.3f} µV²`
+        - **kT/C Noise**  
+          - RMS: `{math.sqrt(p_kTC) * 1e6:.3f} µV`  
+          - Power: `{p_kTC * 1e6:.3f} µV²`
+        - **Jitter Noise**  
+          - RMS: `{math.sqrt(p_jitter) * 1e6:.3f} µV`  
+          - Power: `{p_jitter * 1e6:.3f} µV²`
+
+        #### 📈 Overall
+        - **Total Noise Power**: `{p_total_noise * 1e6:.3f} µV²`
+        - **SNR**: `{snr:.2f} dB`
         - **ENOB**: `{enob:.2f} bits`
         """)
 
-        # SNDR → Noise RMS 및 ENOB 계산 (선택 사항)
+        # SNDR → Noise RMS 및 ENOB 계산 (Optional)
         if sndr_str.strip() != "":
             try:
                 sndr = float(sndr_str)
@@ -123,7 +132,6 @@ if st.button("🔍 Calculate SNR and ENOB"):
         labels_filtered = [label for label, p in zip(labels, powers) if p > 0]
         powers_filtered = [p for p in powers if p > 0]
 
-        # 📊 퍼센트만 내부 표시, 이름은 legend로
         fig, ax = plt.subplots()
         wedges, texts, autotexts = ax.pie(
             powers_filtered,
@@ -139,7 +147,7 @@ if st.button("🔍 Calculate SNR and ENOB"):
     except Exception as e:
         st.error(f"❌ Error: {e}")
 
-# 🧮 SNDR 기반 추정 계산 (별도 버튼)
+# 🧶 SNDR 기반 추정 계산 (Estimate button)
 if estimate_btn:
     try:
         sndr = float(sndr_str)
